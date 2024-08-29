@@ -5,12 +5,16 @@ import random
 
 fake = Faker()
 
+# Define North American and European country codes
+COUNTRIES = ['US', 'CA', 'MX',  # North America
+             'GB', 'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'SE', 'NO', 'DK', 'FI', 'PL', 'AT', 'CH', 'IE', 'PT']  # Europe
+
 def generate_user():
     return {
         'user_id': fake.uuid4(),
         'join_date': fake.date_between(start_date='-2y', end_date='today'),
         'platform': fake.random_element(elements=('iOS', 'Android', 'Web', 'Desktop')),
-        'country': fake.country_code(),
+        'country': random.choice(COUNTRIES),
         'age': fake.random_int(min=18, max=80),
         'gender': fake.random_element(elements=('M', 'F', 'Other'))
     }
