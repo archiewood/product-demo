@@ -3,11 +3,19 @@ title: Product Dashboard
 ---
 
 
+<DateRange
+  start='2023-01-01'
+  end='2024-07-01'
+  name=date_range
+  presetRanges={['Last 3 Months', 'Last 6 Months', 'Last 12 Months', 'All Time']}
+/>
+
 ```sql monthly_active_users
 select 
   date_trunc('month',session_date) as month,
   count(distinct user_id) as monthly_active_users
 from sessions
+where session_date between '${inputs.date_range.start}' and '${inputs.date_range.end}'
 group by all
 order by month
 ```
@@ -21,6 +29,7 @@ select
     count(distinct user_id) as users,
     count(distinct user_id) / sum(count(distinct user_id)) over () as pct_users
 from users
+where join_date between '${inputs.date_range.start}' and '${inputs.date_range.end}'
 group by all
 ```
 
@@ -30,6 +39,7 @@ select
     country,
     count(distinct user_id) as users
 from users
+where join_date between '${inputs.date_range.start}' and '${inputs.date_range.end}'
 group by all
 ```
 
@@ -53,6 +63,7 @@ select
     cohort_label,
     users * 1.0 / first_value(users) over (partition by cohort order by cohort_age) as retention
 from abs
+where cohort between '${inputs.date_range.start}' and '${inputs.date_range.end}'
 ```
 
 <Grid cols=2>
@@ -78,13 +89,15 @@ from abs
 </Grid>
 
 
+
 <AreaMap
   data={users_by_country}
   geoJsonUrl=https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson
   geoId=iso_a2
   areaCol=country
   value=users
-  startingZoom=5
+  startingZoom=2
+  height=400
   title='Users by Country'
 />
 
@@ -103,6 +116,7 @@ select
   count(distinct user_id) as users,
   round(count(distinct user_id) / first_value(count(distinct user_id)) over (order by users desc),3) as pct_users
 from onboarding_steps
+where completion_date between '${inputs.date_range.start}' and '${inputs.date_range.end}'
 group by step
 order by users desc
 ```
@@ -113,10 +127,10 @@ order by users desc
   data={users_by_platform}
   x=label
   y=pct_users
-  yMax=1.1
+  yMax=1.15
   yGridlines=false
   yAxisLabels=false
-  yFmt=pct0
+  yFmt=pct1
   series=platform
   title='Users by Platform'
   swapXY
